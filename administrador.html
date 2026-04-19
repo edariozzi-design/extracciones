@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/extracciones.css">
+
+    <title>Administrador</title>
+    
+    <!-- Librería Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+
+<body>
+
+    <div class="top-container">
+
+        <!-- IZQUIERDA (solo se reemplaza la parte vieja) -->
+        <div class="header-left">
+            <h2>CARGAR ARCHIVO</h2>
+
+            <div class="filtro-box">
+                <label for="excelFile">Seleccionar Excel:</label>
+                <input type="file" id="excelFile" accept=".xlsx, .xls">
+            </div>
+
+            <div class="filtros-box">
+                <div class="filtro-item">
+                    <label for="minpesos">Pesos mínimo</label>
+                    <input type="number" id="minpesos" min="10000" step="5000" value="10000">
+                </div>
+
+                <div class="filtro-item">
+                    <label for="mindolares">Dólares mínimo</label>
+                    <input type="number" id="mindolares" min="50" step="10" value="50">
+                </div>
+
+
+
+                <div class="filtro-botones">
+                    <button id="btnFiltrar">Filtrar</button>
+                    <button id="btnReset">Reset</button>
+                    <button id="btnGuardar">Guardar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DERECHA -->
+        <div class="header-right">
+            <h2>SEGUIMIENTO</h2>
+            <div class="seguimiento-grid">
+                <div class="total-maquinas">TOTAL DE MÁQUINAS<br><span id="totalMaquinas">0</span></div>
+                <div class="hechas">HECHAS<br><span id="hechas">0</span></div>
+                <div class="faltantes">FALTANTES<br><span id="faltan">0</span></div>
+                <div class="pesos">PESOS<br><span id="totalPesos">0</span></div>
+                <div class="dolares">DÓLARES<br><span id="totalUSD">0</span></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- TABLA DE MÁQUINAS -->
+    <div style="overflow-x:auto; margin-top: 20px;">
+        <table border="1" width="100%" id="tabla">
+            <thead>
+                <tr>
+                    <th>Máquina</th>
+                    <th>Location</th>
+                    <th>Importe</th>
+                    <th>Zona</th>
+                    <th>Moneda</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- ESTADO DEL TURNO -->
+    <h2>Estado del Turno</h2>
+    <button id="btnResumen">Actualizar Estado</button>
+    <div id="resumenZonas"></div>
+
+    <!-- JS: al final del body -->
+
+    <script src="administrador.js"></script>
+
+</body>
+
+</html>

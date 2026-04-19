@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extracciones</title>
+
+    <!-- Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+    <!-- QR -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <link rel="stylesheet" href="./css/extracciones.css">
+
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <h2>Extracciones</h2>
+        <button onclick="logout()">Salir</button>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="admin" class="vista">
+        <h3>Panel Administrador</h3>
+
+        <input type="file" id="excelFile" accept=".xlsx">
+        <br><br>
+
+        <button onclick="cargarEjemplo()">Cargar Ejemplo</button>
+        <button onclick="confirmarTurno()">Confirmar Turno</button>
+
+        <div id="adminPreview"></div>
+    </div>
+
+    <!-- USUARIO -->
+    <div id="usuarioVista" class="vista">
+        <h3>Mi Turno</h3>
+
+        <div id="infoUsuario"></div>
+
+        <button onclick="activarQR()">📷 Escanear QR</button>
+        <div id="reader" style="width:100%; max-width:300px; margin:auto;"></div>
+
+        <div id="zonas"></div>
+
+        <h3 id="resumen"></h3>
+    </div>
+
+    <script>
+
+        // =====================
+        // VARIABLES GLOBALES
+        // =====================
+        let datos = [];
+        let zonaActiva = null;
+        const params = new URLSearchParams(window.location.search);
+        const zonaQR = params.get("zona");
+
+        if (zonaQR) {
+            zonaActiva = zonaQR.toUpperCase();
+        }
+        console.log("Zona:", zonaActiva);
+        console.log("Datos:", datos);
+
+        datos = JSON.parse(localStorage.getItem("datos")) || [];
+
+        function normalizar(texto) {
+            return texto?.toString().trim().toUpperCase();
+        }
+
+        if (zonaActiva && datos.length > 0) {
+
+            const maquinasZona = datos.filter(d =>
+                normalizar(d.Zona) === normalizar(zonaActiva)
+            );
+
+            const contenedor = document.getElementById("zonas");
+
+            if (maquinasZona.length > 0) {
+
+                contenedor.innerHTML = maquinasZona.map(m => `
+            <div class="maquina">
+                <strong>${m.Maquina}</strong><br>
+                ${m.Locacion}<br>
+                ${m.Importe} ${m.Moneda}
+            </div>
+        `).join("");
+
+            } else {
+                contenedor.innerHTML = "No hay máquinas para esta zona";
+            }
+        }
+
+        // =====================
+        // INICIO
+        // =====================
+
+
+        window.onload = function () {
+
+            // 🔥 Si no hay turno, lo crea automáticamente
+            if (!localStorage.getItem("turnoActivo")) {
+                cargarEjemplo();
+                confirmarTurno();
+            }
+
+            const user = localStorage.getItem("usuarioActivo");
+
+            if (!user) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            if (user === "admin") mostrarAdmin();
+            else mostrarUsuarioVista();
+        };
+
+
+        // =====================
+        // VISTAS
+        // =====================
+
+
+        function ocultarTodo() {
+            document.querySelectorAll(".vista").forEach(v => v.classList.remove("activa"));
+        }
+
+        function mostrarAdmin() {
+            ocultarTodo();
+            document.getElementById("admin").classList.add("activa");
+        }
+
+        function mostrarUsuarioVista() {
+            ocultarTodo();
+            document.getElementById("usuarioVista").classList.add("activa");
+
+            if (zonaActiva) {
+                cargarUsuario();
+            } else {
+                document.getElementById("zonas").innerHTML =
+                    "<p>Escaneá el QR para ver tus máquinas</p>";
+            }
+        }
+
+        // =====================
+        // LOGOUT
+        // =====================
+        function logout() {
+            localStorage.removeItem("usuarioActivo");
+            window.location.href = "index.html";
+        }
+
+        // =====================
+        // ADMIN
+        // =====================
+        document.getElementById("excelFile").addEventListener("change", leerExcel);
+
+        function cargarEjemplo() {
+            datos = [
+                { nombre: "juan", grupo: "1", zona: "A", maquina: "M1" },
+                { nombre: "juan", grupo: "1", zona: "A", maquina: "M2" },
+                { nombre: "ana", grupo: "1", zona: "A", maquina: "M3" }
+            ];
+            mostrarPreview();
+        }
+
+        function leerExcel(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (evt) {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: "array" });
+
+                const hoja = workbook.Sheets[workbook.SheetNames[0]];
+                const json = XLSX.utils.sheet_to_json(hoja);
+
+                datos = json.map(d => ({
+                    nombre: d.nombre.toLowerCase(),
+                    grupo: d.grupo,
+                    zona: d.zona,
+                    maquina: d.maquina
+                }));
+
+                mostrarPreview();
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function mostrarPreview() {
+            const cont = document.getElementById("adminPreview");
+            cont.innerHTML = "<h4>Vista previa</h4>";
+
+            datos.forEach(d => {
+                cont.innerHTML += `
+            <div class="card">
+                ${d.nombre} | G${d.grupo} | Z${d.zona} | ${d.maquina}
+            </div>
+        `;
+            });
+        }
+
+        function procesarDatos(lista) {
+            let resultado = {};
+
+            lista.forEach(d => {
+                if (!resultado[d.nombre]) {
+                    resultado[d.nombre] = {
+                        nombre: d.nombre,
+                        grupo: d.grupo,
+                        zonas: {}
+                    };
+                }
+
+                if (!resultado[d.nombre].zonas[d.zona]) {
+                    resultado[d.nombre].zonas[d.zona] = [];
+                }
+
+                resultado[d.nombre].zonas[d.zona].push({
+                    maquina: d.maquina,
+                    hecha: false,
+                    problema: false
+                });
+            });
+
+            return resultado;
+        }
+
+        function confirmarTurno() {
+            const turno = procesarDatos(datos);
+            localStorage.setItem("turnoActivo", JSON.stringify(turno));
+            alert("Turno confirmado");
+        }
+        localStorage.setItem("datos", JSON.stringify(datos));
+
+        // =====================
+        // USUARIO (GRUPO)
+        // =====================
+        function cargarUsuario() {
+            const grupo = JSON.parse(localStorage.getItem("grupo")) || [];
+            const turno = JSON.parse(localStorage.getItem("turnoActivo")) || {};
+
+            let personas = grupo.map(n => turno[n]).filter(p => p);
+
+            renderGrupo(personas);
+        }
+
+        function renderGrupo(personas) {
+            document.getElementById("infoUsuario").innerHTML = `
+        <b>Equipo:</b>
+        ${personas.map(p => `<p>${p.nombre}</p>`).join("")}
+    `;
+
+            const cont = document.getElementById("zonas");
+            cont.innerHTML = "";
+
+            let zonas = {};
+
+            personas.forEach(p => {
+                for (let z in p.zonas) {
+
+                    // ✅ CORRECCIÓN 1 (antes return)
+                    if (zonaActiva && z !== zonaActiva) continue;
+
+                    // ✅ CORRECCIÓN 2 (inicializar)
+                    if (!zonas[z]) zonas[z] = [];
+
+                    p.zonas[z].forEach((m, i) => {
+                        zonas[z].push({ ...m, nombre: p.nombre, index: i });
+                    });
+                }
+            });
+
+            for (let z in zonas) {
+                cont.innerHTML += `
+            <div class="card">
+                <h4>Zona ${z}</h4>
+                ${zonas[z].map(m => `
+                    <div class="maquina">
+                        <span class="${m.hecha ? 'hecha' : ''} ${m.problema ? 'problema' : ''}">
+                            ${m.maquina} - ${m.nombre}
+                        </span>
+                        <div>
+                            <input type="checkbox" 
+                                ${m.hecha ? 'checked' : ''}
+                                onchange="marcar('${m.nombre}','${z}',${m.index})">
+                            <button onclick="problema('${m.nombre}','${z}',${m.index})">❌</button>
+                        </div>
+                    </div>
+                `).join("")}
+            </div>
+        `;
+            }
+
+            actualizarResumen(personas);
+        }
+
+        function marcar(nombre, zona, i) {
+            let data = JSON.parse(localStorage.getItem("turnoActivo"));
+            data[nombre].zonas[zona][i].hecha = true;
+
+            localStorage.setItem("turnoActivo", JSON.stringify(data));
+            cargarUsuario();
+        }
+
+        function problema(nombre, zona, i) {
+            let data = JSON.parse(localStorage.getItem("turnoActivo"));
+            data[nombre].zonas[zona][i].problema = true;
+
+            localStorage.setItem("turnoActivo", JSON.stringify(data));
+            cargarUsuario();
+        }
+
+        function actualizarResumen(personas) {
+            let total = 0, hechas = 0;
+
+            personas.forEach(p => {
+                for (let z in p.zonas) {
+                    p.zonas[z].forEach(m => {
+                        total++;
+                        if (m.hecha) hechas++;
+                    });
+                }
+            });
+
+            document.getElementById("resumen").innerText =
+                `Progreso: ${hechas} / ${total}`;
+        }
+
+        // =====================
+        // QR
+        // =====================
+
+        function activarQR() {
+
+            const readerDiv = document.getElementById("reader");
+            readerDiv.innerHTML = "";
+
+            Html5Qrcode.getCameras().then(cameras => {
+                if (cameras && cameras.length) {
+
+                    const html5QrCode = new Html5Qrcode("reader");
+
+                    // 🔥 cámara trasera
+                    const camara = cameras.find(c =>
+                        c.label.toLowerCase().includes("back")
+                    ) || cameras[0];
+
+                    html5QrCode.start(
+                        camara.id,
+                        { fps: 10, qrbox: 250 },
+                        (decodedText) => {
+
+                            html5QrCode.stop();
+                            window.location.href = `extracciones.html?zona=${decodedText}`;
+
+                        },
+                        (error) => { }
+                    );
+
+                }
+            }).catch(err => {
+                alert("No se pudo acceder a la cámara");
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>

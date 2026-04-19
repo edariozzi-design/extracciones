@@ -1,0 +1,159 @@
+/* ========================= ADMIN ========================= */
+
+body {
+    font-family: Arial;
+    color: white;
+    padding: 50px;
+    margin: 0;
+    background-image: url('../img/fondo-adm.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+}
+
+/* CONTENEDOR SUPERIOR / HEADER */
+.top-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* IZQUIERDA */
+.header-left, .left {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: rgba(26,26,26,0.85); /* 👈 CAMBIO */
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.header-left h2, .left h2 {
+    margin: 0;
+    color: #00ff9c;
+    text-align: center;
+}
+
+.pesos, .dolares {
+    text-align: center;
+}
+
+/* DERECHA */
+.header-right {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-right h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.2em;
+    color: #00ff9c;
+    text-align: center;
+}
+
+/* GRID MÉTRICAS */
+.seguimiento-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.total-maquinas {
+    grid-column: span 2;
+    justify-self: center;
+    width: 60%;
+    max-width: 250px;
+    text-align: center;
+    background: rgba(34,34,34,0.85); /* 👈 CAMBIO */
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.seguimiento-grid > div {
+    background: rgba(34,34,34,0.85); /* 👈 CAMBIO */
+    padding: 10px;
+    text-align: center;
+    border-radius: 8px;
+}
+
+/* PANEL RESUMEN */
+#panelResumen {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    background: rgba(17,17,17,0.85); /* 👈 CAMBIO */
+    padding: 10px;
+    border-bottom: 2px solid #333;
+}
+
+#panelResumen .card {
+    background: rgba(34,34,34,0.85); /* 👈 CAMBIO */
+    color: white;
+    padding: 10px;
+    text-align: center;
+    border-radius: 8px;
+}
+
+#panelResumen h3 {
+    font-size: 14px;
+    margin: 0;
+}
+
+#panelResumen p {
+    font-size: 20px;
+    margin: 5px 0 0;
+    font-weight: bold;
+}
+
+/* FILTROS */
+.filtro-box, .filtros-box, .filtro-item, .filtro-botones {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filtro-item label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.filtro-item input {
+    padding: 5px;
+    font-size: 1rem;
+}
+
+.filtro-botones button {
+    padding: 8px 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    background: #00ff9c;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.filtro-botones button:hover {
+    opacity: 0.8;
+}
+
+.right input {
+    width: 100%;
+    padding: 8px;
+}
+
+.right button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: #00ff9c;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.right button:hover {
+    opacity: 0.8;
+}

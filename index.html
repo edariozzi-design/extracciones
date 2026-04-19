@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/inicio.css">
+    <title>Login Extraccionistas</title>
+
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+    <form id="loginForm">
+        <h1>Extraccionistas</h1>
+
+        <select id="extraccionista1" required>
+            <option value="">Seleccione Extraccionista 1</option>
+        </select>
+
+        <select id="extraccionista2" required>
+            <option value="">Seleccione Extraccionista 2</option>
+        </select>
+
+        <button type="submit">Iniciar</button>
+    </form>
+
+    <script>
+
+        // LISTA DE USUARIOS
+        const extraccionistas = [
+            "BARROS MARCO ANTONIO",
+            "CAMINOS GUSTAVO",
+            "CAVEZZALI PABLO",
+            "CRIADO MOLINA GABRIEL DARIO",
+            "FARIAS KEVIN AXEL",
+            "HERNANDEZ MATIAS",
+            "LEYES GABRIEL",
+            "MADERA EMILIANO",
+            "MARQUEZ GARCIA ANDRES",
+            "MONTOYA EMMANUEL",
+            "OCHOA SERGIO HERNAN",
+            "PRIETO JUAN MANUEL",
+            "RODRIGUEZ HORACIO",
+            "ROMAGNOLO GUSTAVO",
+            "VACA PAULO"
+        ];
+
+        const select1 = document.getElementById('extraccionista1');
+        const select2 = document.getElementById('extraccionista2');
+        const form = document.getElementById('loginForm');
+
+        // CARGAR OPCIONES
+        function cargarOpciones() {
+            const val1 = select1.value;
+            const val2 = select2.value;
+
+            select1.innerHTML = '<option value="">Seleccione Extraccionista 1</option>';
+            select2.innerHTML = '<option value="">Seleccione Extraccionista 2</option>';
+
+            extraccionistas.forEach(nombre => {
+                select1.innerHTML += `<option value="${nombre}">${nombre}</option>`;
+                select2.innerHTML += `<option value="${nombre}">${nombre}</option>`;
+            });
+
+            // Evitar duplicados visibles
+            Array.from(select1.options).forEach(option => {
+                if (option.value === val2 && val2 !== "") option.style.display = "none";
+            });
+
+            Array.from(select2.options).forEach(option => {
+                if (option.value === val1 && val1 !== "") option.style.display = "none";
+            });
+
+            select1.value = val1;
+            select2.value = val2;
+        }
+
+        select1.addEventListener('change', cargarOpciones);
+        select2.addEventListener('change', cargarOpciones);
+
+        // INICIALIZAR
+        cargarOpciones();
+
+
+        // ✅ LOGIN (CORREGIDO)
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const user1 = select1.value;
+            const user2 = select2.value;
+
+            if (!user1 || !user2) {
+                alert("Debe seleccionar ambos extraccionistas");
+                return;
+            }
+
+            // Guardar grupo (nuevo)
+            localStorage.setItem("grupo", JSON.stringify([user1, user2]));
+
+            // Usuario activo (corregido)
+            localStorage.setItem("usuarioActivo", user1.toLowerCase());
+
+            // Redirección corregida
+            window.location.href = "extracciones.html";
+        });
+
+    </script>
+
+</body>
+
+</html>
