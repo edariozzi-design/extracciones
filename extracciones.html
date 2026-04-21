@@ -13,7 +13,6 @@
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <link rel="stylesheet" href="./css/extracciones.css">
-
 </head>
 
 <body>
@@ -31,83 +30,33 @@
         <input type="file" id="excelFile" accept=".xlsx">
         <br><br>
 
-        <button onclick="cargarEjemplo()">Cargar Ejemplo</button>
-        <button onclick="confirmarTurno()">Confirmar Turno</button>
-
         <div id="adminPreview"></div>
     </div>
 
     <!-- USUARIO -->
     <div id="usuarioVista" class="vista">
-        <h3>Mi Turno</h3>
-
-        <div id="infoUsuario"></div>
+        <h3>Escaneo</h3>
 
         <button onclick="activarQR()">📷 Escanear QR</button>
+
         <div id="reader" style="width:100%; max-width:300px; margin:auto;"></div>
 
         <div id="zonas"></div>
-
-        <h3 id="resumen"></h3>
     </div>
 
     <script>
 
         // =====================
-        // VARIABLES GLOBALES
+        // VARIABLES
         // =====================
-        let datos = [];
-        let zonaActiva = null;
-        const params = new URLSearchParams(window.location.search);
-        const zonaQR = params.get("zona");
 
-        if (zonaQR) {
-            zonaActiva = zonaQR.toUpperCase();
-        }
-        console.log("Zona:", zonaActiva);
-        console.log("Datos:", datos);
-
-        datos = JSON.parse(localStorage.getItem("datos")) || [];
-
-        function normalizar(texto) {
-            return texto?.toString().trim().toUpperCase();
-        }
-
-        if (zonaActiva && datos.length > 0) {
-
-            const maquinasZona = datos.filter(d =>
-                normalizar(d.Zona) === normalizar(zonaActiva)
-            );
-
-            const contenedor = document.getElementById("zonas");
-
-            if (maquinasZona.length > 0) {
-
-                contenedor.innerHTML = maquinasZona.map(m => `
-            <div class="maquina">
-                <strong>${m.Maquina}</strong><br>
-                ${m.Locacion}<br>
-                ${m.Importe} ${m.Moneda}
-            </div>
-        `).join("");
-
-            } else {
-                contenedor.innerHTML = "No hay máquinas para esta zona";
-            }
-        }
+        let datos = JSON.parse(localStorage.getItem("datos")) || [];
 
         // =====================
         // INICIO
         // =====================
 
-
         window.onload = function () {
-
-            // 🔥 Si no hay turno, lo crea automáticamente
-            if (!localStorage.getItem("turnoActivo")) {
-                cargarEjemplo();
-                confirmarTurno();
-            }
 
             const user = localStorage.getItem("usuarioActivo");
 
@@ -116,15 +65,16 @@
                 return;
             }
 
-            if (user === "admin") mostrarAdmin();
-            else mostrarUsuarioVista();
+            if (user === "admin") {
+                mostrarAdmin();
+            } else {
+                mostrarUsuario();
+            }
         };
-
 
         // =====================
         // VISTAS
         // =====================
-
 
         function ocultarTodo() {
             document.querySelectorAll(".vista").forEach(v => v.classList.remove("activa"));
@@ -135,39 +85,28 @@
             document.getElementById("admin").classList.add("activa");
         }
 
-        function mostrarUsuarioVista() {
+        function mostrarUsuario() {
             ocultarTodo();
             document.getElementById("usuarioVista").classList.add("activa");
 
-            if (zonaActiva) {
-                cargarUsuario();
-            } else {
-                document.getElementById("zonas").innerHTML =
-                    "<p>Escaneá el QR para ver tus máquinas</p>";
-            }
+            document.getElementById("zonas").innerHTML =
+                "<p>Escaneá un QR para ver las máquinas</p>";
         }
 
         // =====================
         // LOGOUT
         // =====================
+
         function logout() {
             localStorage.removeItem("usuarioActivo");
             window.location.href = "index.html";
         }
 
         // =====================
-        // ADMIN
+        // ADMIN - CARGA EXCEL
         // =====================
-        document.getElementById("excelFile").addEventListener("change", leerExcel);
 
-        function cargarEjemplo() {
-            datos = [
-                { nombre: "juan", grupo: "1", zona: "A", maquina: "M1" },
-                { nombre: "juan", grupo: "1", zona: "A", maquina: "M2" },
-                { nombre: "ana", grupo: "1", zona: "A", maquina: "M3" }
-            ];
-            mostrarPreview();
-        }
+        document.getElementById("excelFile").addEventListener("change", leerExcel);
 
         function leerExcel(e) {
             const file = e.target.files[0];
@@ -180,12 +119,9 @@
                 const hoja = workbook.Sheets[workbook.SheetNames[0]];
                 const json = XLSX.utils.sheet_to_json(hoja);
 
-                datos = json.map(d => ({
-                    nombre: d.nombre.toLowerCase(),
-                    grupo: d.grupo,
-                    zona: d.zona,
-                    maquina: d.maquina
-                }));
+                datos = json;
+
+                localStorage.setItem("datos", JSON.stringify(datos));
 
                 mostrarPreview();
             };
@@ -195,142 +131,16 @@
 
         function mostrarPreview() {
             const cont = document.getElementById("adminPreview");
+
             cont.innerHTML = "<h4>Vista previa</h4>";
 
             datos.forEach(d => {
                 cont.innerHTML += `
-            <div class="card">
-                ${d.nombre} | G${d.grupo} | Z${d.zona} | ${d.maquina}
-            </div>
-        `;
-            });
-        }
-
-        function procesarDatos(lista) {
-            let resultado = {};
-
-            lista.forEach(d => {
-                if (!resultado[d.nombre]) {
-                    resultado[d.nombre] = {
-                        nombre: d.nombre,
-                        grupo: d.grupo,
-                        zonas: {}
-                    };
-                }
-
-                if (!resultado[d.nombre].zonas[d.zona]) {
-                    resultado[d.nombre].zonas[d.zona] = [];
-                }
-
-                resultado[d.nombre].zonas[d.zona].push({
-                    maquina: d.maquina,
-                    hecha: false,
-                    problema: false
-                });
-            });
-
-            return resultado;
-        }
-
-        function confirmarTurno() {
-            const turno = procesarDatos(datos);
-            localStorage.setItem("turnoActivo", JSON.stringify(turno));
-            alert("Turno confirmado");
-        }
-        localStorage.setItem("datos", JSON.stringify(datos));
-
-        // =====================
-        // USUARIO (GRUPO)
-        // =====================
-        function cargarUsuario() {
-            const grupo = JSON.parse(localStorage.getItem("grupo")) || [];
-            const turno = JSON.parse(localStorage.getItem("turnoActivo")) || {};
-
-            let personas = grupo.map(n => turno[n]).filter(p => p);
-
-            renderGrupo(personas);
-        }
-
-        function renderGrupo(personas) {
-            document.getElementById("infoUsuario").innerHTML = `
-        <b>Equipo:</b>
-        ${personas.map(p => `<p>${p.nombre}</p>`).join("")}
-    `;
-
-            const cont = document.getElementById("zonas");
-            cont.innerHTML = "";
-
-            let zonas = {};
-
-            personas.forEach(p => {
-                for (let z in p.zonas) {
-
-                    // ✅ CORRECCIÓN 1 (antes return)
-                    if (zonaActiva && z !== zonaActiva) continue;
-
-                    // ✅ CORRECCIÓN 2 (inicializar)
-                    if (!zonas[z]) zonas[z] = [];
-
-                    p.zonas[z].forEach((m, i) => {
-                        zonas[z].push({ ...m, nombre: p.nombre, index: i });
-                    });
-                }
-            });
-
-            for (let z in zonas) {
-                cont.innerHTML += `
-            <div class="card">
-                <h4>Zona ${z}</h4>
-                ${zonas[z].map(m => `
-                    <div class="maquina">
-                        <span class="${m.hecha ? 'hecha' : ''} ${m.problema ? 'problema' : ''}">
-                            ${m.maquina} - ${m.nombre}
-                        </span>
-                        <div>
-                            <input type="checkbox" 
-                                ${m.hecha ? 'checked' : ''}
-                                onchange="marcar('${m.nombre}','${z}',${m.index})">
-                            <button onclick="problema('${m.nombre}','${z}',${m.index})">❌</button>
-                        </div>
+                    <div class="card">
+                        ${d["Máquina"]} | Loc ${d.Location} | Zona ${d.Zona}
                     </div>
-                `).join("")}
-            </div>
-        `;
-            }
-
-            actualizarResumen(personas);
-        }
-
-        function marcar(nombre, zona, i) {
-            let data = JSON.parse(localStorage.getItem("turnoActivo"));
-            data[nombre].zonas[zona][i].hecha = true;
-
-            localStorage.setItem("turnoActivo", JSON.stringify(data));
-            cargarUsuario();
-        }
-
-        function problema(nombre, zona, i) {
-            let data = JSON.parse(localStorage.getItem("turnoActivo"));
-            data[nombre].zonas[zona][i].problema = true;
-
-            localStorage.setItem("turnoActivo", JSON.stringify(data));
-            cargarUsuario();
-        }
-
-        function actualizarResumen(personas) {
-            let total = 0, hechas = 0;
-
-            personas.forEach(p => {
-                for (let z in p.zonas) {
-                    p.zonas[z].forEach(m => {
-                        total++;
-                        if (m.hecha) hechas++;
-                    });
-                }
+                `;
             });
-
-            document.getElementById("resumen").innerText =
-                `Progreso: ${hechas} / ${total}`;
         }
 
         // =====================
@@ -343,30 +153,83 @@
             readerDiv.innerHTML = "";
 
             Html5Qrcode.getCameras().then(cameras => {
-                if (cameras && cameras.length) {
 
-                    const html5QrCode = new Html5Qrcode("reader");
-
-                    // 🔥 cámara trasera
-                    const camara = cameras.find(c =>
-                        c.label.toLowerCase().includes("back")
-                    ) || cameras[0];
-
-                    html5QrCode.start(
-                        camara.id,
-                        { fps: 10, qrbox: 250 },
-                        (decodedText) => {
-
-                            html5QrCode.stop();
-                            window.location.href = `extracciones.html?zona=${decodedText}`;
-
-                        },
-                        (error) => { }
-                    );
-
+                if (!cameras.length) {
+                    alert("No hay cámara disponible");
+                    return;
                 }
-            }).catch(err => {
-                alert("No se pudo acceder a la cámara");
+
+                const html5QrCode = new Html5Qrcode("reader");
+
+                const camara = cameras.find(c =>
+                    c.label.toLowerCase().includes("back")
+                ) || cameras[0];
+
+                html5QrCode.start(
+                    camara.id,
+                    { fps: 10, qrbox: 250 },
+                    (decodedText) => {
+
+                        html5QrCode.stop();
+                        procesarQR(decodedText);
+
+                    }
+                );
+
+            }).catch(() => {
+                alert("Error al acceder a la cámara");
+            });
+        }
+
+        // =====================
+        // PROCESAR QR
+        // =====================
+
+        function procesarQR(locacion) {
+
+            locacion = locacion.toString().padStart(4, "0");
+
+            if (!/^\d{4}$/.test(locacion)) {
+                alert("QR inválido");
+                return;
+            }
+
+            const resultado = datos.filter(d => {
+                const key = Object.keys(d).find(k => k.trim() === "Location");
+                const loc = (d[key] || "").toString().padStart(4, "0");
+                return loc === locacion;
+            });
+
+            if (resultado.length === 0) {
+                alert("Locación no encontrada");
+                return;
+            }
+
+            mostrarLocacion(locacion, resultado);
+        }
+
+        // =====================
+        // MOSTRAR RESULTADO
+        // =====================
+
+        function mostrarLocacion(locacion, lista) {
+
+            const contenedor = document.getElementById("zonas");
+
+            const zona = lista[0].Zona;
+
+            contenedor.innerHTML = `
+                <h3>Locación ${locacion}</h3>
+                <h4>Zona ${zona}</h4>
+            `;
+
+            lista.forEach(m => {
+                contenedor.innerHTML += `
+                    <div class="maquina">
+                        <strong>${m["Máquina"]}</strong><br>
+                        ${m.Importe} ${m.Moneda}
+                    </div>
+                `;
             });
         }
 
