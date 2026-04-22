@@ -122,6 +122,8 @@
                 datos = json;
 
                 localStorage.setItem("datos", JSON.stringify(datos));
+                window.datos = datos;
+                console.log("Datos cargados:", datos);
 
                 mostrarPreview();
             };
