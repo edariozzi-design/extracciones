@@ -69,41 +69,36 @@
 
         // QR
 
-        function activarQR() {
+function activarQR() {
 
-            const readerDiv = document.getElementById("reader");
-            readerDiv.innerHTML = "";
+    const readerDiv = document.getElementById("reader");
+    readerDiv.innerHTML = "";
 
-            const html5QrCode = new Html5Qrcode("reader");
+    const html5QrCode = new Html5Qrcode("reader");
 
-            html5QrCode.start(
-                { facingMode: "environment" }, // fuerza cámara trasera
-                {
-                    fps: 10,
-                    qrbox: 250
-                },
+    html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
 
-                function (decodedText) {
+        function (decodedText) {
 
-                    html5QrCode.stop();
+            alert("ESCANEO OK: " + decodedText); // 👈 SOLO DEBUG
 
-                    alert("Leído: [" + decodedText + "]");
+            html5QrCode.stop();
 
+            let locacion = String(decodedText)
+                .replace(/\D/g, "")
+                .padStart(4, "0");
 
-                    // limpia cualquier cosa rara que venga del QR
-                    let locacion = String(decodedText)
-                        .replace(/\D/g, "")   // deja solo números
-                        .padStart(4, "0");
-
-                    procesarQR(locacion);
-                }
-
-            ).catch(err => {
-                alert("Error al acceder cámara");
-                console.error(err);
-            });
-
+            procesarQR(locacion);
         }
+
+    ).catch(err => {
+        alert("Error al acceder cámara");
+        console.error(err);
+    });
+
+}
 
 
 
