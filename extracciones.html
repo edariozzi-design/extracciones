@@ -14,14 +14,14 @@
 
 <body>
 
-<h1>PRUEBA DEPLOY 999</h1>
+    <h1>PRUEBA DEPLOY 999</h1>
     <div class="header">
         <h2>Extracciones</h2>
         <button onclick="logout()">Salir</button>
     </div>
 
     <div id="usuarioVista" class="vista activa">
-        <h3>Escaneo</h3>
+        <h3>Escaneo</h3
 
         <button onclick="activarQR()">
             Escanear QR
@@ -111,30 +111,26 @@
 
         function procesarQR(locacion) {
 
-            window.onload = function () {
-                alert("Datos cargados: " + datos.length);
-            }
+            alert("RAW QR: [" + locacion + "]");
 
-            // extrae solo dígitos del QR
-            const numeros = String(locacion).match(/\d+/g);
+            const limpio = String(locacion).replace(/\D/g, "");
 
-            if (!numeros) {
-                alert("QR inválido");
-                return;
-            }
+            alert("NUMEROS: [" + limpio + "]");
 
-            locacion = Number(numeros.join(""));
+            const num = Number(limpio);
 
-            const resultado = datos.filter(
-                d => Number(d.location) === locacion
-            );
+            alert("FINAL: " + num);
+
+            const resultado = datos.filter(d => Number(d.location) === num);
+
+            alert("MATCH: " + resultado.length);
 
             if (!resultado.length) {
                 alert("Locación no encontrada");
                 return;
             }
 
-            mostrarLocacion(locacion, resultado);
+            mostrarLocacion(num, resultado);
         }
 
 
