@@ -76,64 +76,66 @@
 
         function activarQR() {
 
-            alert("Entró a activarQR");
-
             const readerDiv = document.getElementById("reader");
             readerDiv.innerHTML = "";
 
-            const html5QrCode = new Html5Qrcode("reader");
+            Html5Qrcode.getCameras().then(cameras => {
 
-            html5QrCode.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: 250 },
-
-                function (decodedText) {
-
-                    html5QrCode.stop();
-
-                    let locacion = String(decodedText)
-                        .replace(/\D/g, "")
-                        .padStart(4, "0");
-
-                    procesarQR(locacion);
+                if (!cameras.length) {
+                    alert("No hay cámara disponible");
+                    return;
                 }
 
-            ).catch(err => {
-                alert("Error al acceder cámara");
+                const html5QrCode = new Html5Qrcode("reader");
+
+                const camara =
+                    cameras.find(c =>
+                        c.label.toLowerCase().includes("back")
+                    ) || cameras[0];
+
+                html5QrCode.start(
+                    camara.id,
+                    { fps: 10, qrbox: 250 },
+
+                    function (decodedText) {
+
+                        html5QrCode.stop();
+
+                        alert("QR: " + decodedText);
+
+                        procesarQR(decodedText);
+                    }
+
+                );
+
+            }).catch(err => {
+                alert("Error cámara");
                 console.error(err);
             });
+
         }
 
 
 
         // PROCESAR QR
 
-        if (String(locacion).includes("http")) {
-            alert("Este QR es una URL, no una locación");
-            return;
-        }
-
         function procesarQR(locacion) {
 
-            alert("Locación leída: " + locacion);
+            locacion = String(locacion)
+                .replace(/\D/g, '');
 
-            locacion = String(locacion).replace(/\D/g, '');
+            const resultado = datos.filter(
+                d => String(d.location) == locacion
+            );
 
-            alert("Primer dato location: " + datos[0].location);
-
-            const resultado = datos.filter(function (d) {
-                return String(d.location) == locacion;
-            });
-
-            alert("Match: " + resultado.length);
-
-            if (resultado.length === 0) {
+            if (!resultado.length) {
                 alert("Locación no encontrada");
                 return;
             }
 
             mostrarLocacion(locacion, resultado);
         }
+        
 
         // MOSTRAR LOCACION
 
