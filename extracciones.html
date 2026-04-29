@@ -106,24 +106,27 @@
 
         // PROCESAR QR
 
-        function procesarQR(locacion) {
+        function procesarQR(locacion){
 
-            const num = Number(String(locacion).replace(/\D/g, ""));
+    alert("Locación leída: " + locacion);
 
-            const resultado = datos.filter(
-                d => Number(d.location) === num
-            );
+    locacion = String(locacion).replace(/\D/g,'');
 
-            alert("Máquinas encontradas: " + resultado.length);
+    alert("Primer dato location: " + datos[0].location);
 
-            if (!resultado.length) {
-                alert("Locación no encontrada");
-                return;
-            }
+    const resultado = datos.filter(function(d){
+        return String(d.location) == locacion;
+    });
 
-            mostrarLocacion(num, resultado);
-        }
+    alert("Match: " + resultado.length);
 
+    if(resultado.length === 0){
+        alert("Locación no encontrada");
+        return;
+    }
+
+    mostrarLocacion(locacion, resultado);
+}
 
         // MOSTRAR LOCACION
 
