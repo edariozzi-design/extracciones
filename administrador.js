@@ -1,6 +1,8 @@
 
 
-let datos = [];
+let datos = JSON.parse(
+    localStorage.getItem("datos")
+) || [];
 let filtrados = [];
 
 console.log("1 - inicio archivo");
