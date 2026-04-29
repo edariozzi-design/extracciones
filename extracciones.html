@@ -121,21 +121,28 @@
 
         function procesarQR(locacion) {
 
-            locacion = String(locacion)
-                .replace(/\D/g, '');
+            alert("QR " + locacion);
 
-            const resultado = datos.filter(
-                d => String(d.location) == locacion
+            const buscada = Number(
+                String(locacion).replace(/\D/g, "")
             );
 
-            if (!resultado.length) {
+            alert("Buscando " + buscada);
+
+            const resultado = datos.filter(
+                d => Number(d.location) === buscada
+            );
+
+            alert("Match: " + resultado.length);
+
+            if (resultado.length === 0) {
                 alert("Locación no encontrada");
                 return;
             }
 
-            mostrarLocacion(locacion, resultado);
+            mostrarLocacion(buscada, resultado);
         }
-        
+
 
         // MOSTRAR LOCACION
 
