@@ -21,10 +21,8 @@
     </div>
 
     <div id="usuarioVista" class="vista activa">
-        <h3>Escaneo</h3
-
-        <button onclick="activarQR()">
-            Escanear QR
+        <h3>Escaneo</h3 <button onclick="activarQR()">
+        Escanear QR
         </button>
 
         <div id="reader" style="width:100%; max-width:300px; margin:auto;">
@@ -69,36 +67,33 @@
 
         // QR
 
-function activarQR() {
+        function activarQR() {
 
-    const readerDiv = document.getElementById("reader");
-    readerDiv.innerHTML = "";
+            const readerDiv = document.getElementById("reader");
+            readerDiv.innerHTML = "";
 
-    const html5QrCode = new Html5Qrcode("reader");
+            const html5QrCode = new Html5Qrcode("reader");
 
-    html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 250 },
 
-        function (decodedText) {
+                function (decodedText) {
 
-            alert("ESCANEO OK: " + decodedText); // 👈 SOLO DEBUG
+                    html5QrCode.stop();
 
-            html5QrCode.stop();
+                    let locacion = String(decodedText)
+                        .replace(/\D/g, "")
+                        .padStart(4, "0");
 
-            let locacion = String(decodedText)
-                .replace(/\D/g, "")
-                .padStart(4, "0");
+                    procesarQR(locacion);
+                }
 
-            procesarQR(locacion);
+            ).catch(err => {
+                alert("Error cámara");
+                console.error(err);
+            });
         }
-
-    ).catch(err => {
-        alert("Error al acceder cámara");
-        console.error(err);
-    });
-
-}
 
 
 
