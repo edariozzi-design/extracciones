@@ -23,13 +23,13 @@
     <div id="usuarioVista" class="vista activa">
 
         <div class="scanner">
-    <h3>Escaneo</h3>
+            <h3>Escaneo</h3>
 
-    <button onclick="activarQR()">
-        Escanear QR
-    </button>
+            <button onclick="activarQR()">
+                Escanear QR
+            </button>
 
-    <div id="reader"></div>
+            <div id="reader"></div>
         </div>
 
         <div id="reader" style="width:100%; max-width:300px; margin:auto;">
@@ -106,27 +106,32 @@
 
         // PROCESAR QR
 
-        function procesarQR(locacion){
+        if (String(locacion).includes("http")) {
+            alert("Este QR es una URL, no una locación");
+            return;
+        }
 
-    alert("Locación leída: " + locacion);
+        function procesarQR(locacion) {
 
-    locacion = String(locacion).replace(/\D/g,'');
+            alert("Locación leída: " + locacion);
 
-    alert("Primer dato location: " + datos[0].location);
+            locacion = String(locacion).replace(/\D/g, '');
 
-    const resultado = datos.filter(function(d){
-        return String(d.location) == locacion;
-    });
+            alert("Primer dato location: " + datos[0].location);
 
-    alert("Match: " + resultado.length);
+            const resultado = datos.filter(function (d) {
+                return String(d.location) == locacion;
+            });
 
-    if(resultado.length === 0){
-        alert("Locación no encontrada");
-        return;
-    }
+            alert("Match: " + resultado.length);
 
-    mostrarLocacion(locacion, resultado);
-}
+            if (resultado.length === 0) {
+                alert("Locación no encontrada");
+                return;
+            }
+
+            mostrarLocacion(locacion, resultado);
+        }
 
         // MOSTRAR LOCACION
 
