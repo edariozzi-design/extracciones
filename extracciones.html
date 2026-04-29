@@ -21,9 +21,16 @@
     </div>
 
     <div id="usuarioVista" class="vista activa">
-        <h3>Escaneo</h3 <button onclick="activarQR()">
+
+        <div class="scanner">
+    <h3>Escaneo</h3>
+
+    <button onclick="activarQR()">
         Escanear QR
-        </button>
+    </button>
+
+    <div id="reader"></div>
+        </div>
 
         <div id="reader" style="width:100%; max-width:300px; margin:auto;">
         </div>
@@ -90,7 +97,7 @@
                 }
 
             ).catch(err => {
-                alert("Error cámara");
+                alert("Error al acceder cámara");
                 console.error(err);
             });
         }
@@ -101,19 +108,13 @@
 
         function procesarQR(locacion) {
 
-            alert("RAW QR: [" + locacion + "]");
+            const num = Number(String(locacion).replace(/\D/g, ""));
 
-            const limpio = String(locacion).replace(/\D/g, "");
+            const resultado = datos.filter(
+                d => Number(d.location) === num
+            );
 
-            alert("NUMEROS: [" + limpio + "]");
-
-            const num = Number(limpio);
-
-            alert("FINAL: " + num);
-
-            const resultado = datos.filter(d => Number(d.location) === num);
-
-            alert("MATCH: " + resultado.length);
+            alert("Máquinas encontradas: " + resultado.length);
 
             if (!resultado.length) {
                 alert("Locación no encontrada");
