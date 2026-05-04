@@ -1,8 +1,16 @@
 
 
-let datos = JSON.parse(
-    localStorage.getItem("datos")
-) || [];
+let datos = [];
+
+fetch("/api/turno")
+    .then(res => res.json())
+    .then(data => {
+        datos = data;
+        console.log("Datos cargados:", datos);
+
+        // IMPORTANTE: recién acá usar datos
+        iniciarApp();
+    });
 let filtrados = [];
 
 console.log("1 - inicio archivo");
@@ -158,8 +166,23 @@ function filtrar() {
 // ===== GUARDAR TURNO =====
 
 function guardarTurno() {
-    localStorage.setItem("turno", JSON.stringify(filtrados));
-    alert("Turno guardado correctamente");
+
+    fetch("/api/turno", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(filtrados)
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert("Turno guardado en servidor");
+    })
+    .catch(err => {
+        alert("Error guardando turno");
+        console.error(err);
+    });
+
 }
 
 // ===== RESUMEN POR ZONA =====
