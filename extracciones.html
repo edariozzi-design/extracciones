@@ -121,13 +121,17 @@
 
         function procesarQR(locacion) {
 
+            if (!datos.length) {
+                datos = JSON.parse(
+                    localStorage.getItem("datos")
+                ) || [];
+            }
+
             alert("Datos cargados: " + datos.length);
 
             const buscada = Number(
                 String(locacion).replace(/\D/g, "")
             );
-
-            alert("Buscando " + buscada);
 
             const resultado = datos.filter(
                 d => Number(d.location) === buscada
@@ -135,7 +139,7 @@
 
             alert("Match: " + resultado.length);
 
-            if (resultado.length === 0) {
+            if (!resultado.length) {
                 alert("Locación no encontrada");
                 return;
             }
