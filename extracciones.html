@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Extracciones</title>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <link rel="stylesheet" href="./css/extracciones.css">
+
+</head>
+
+<body>
+
+    <h1>PRUEBA DEPLOY 999</h1>
+    <div class="header">
+        <h2>Extracciones</h2>
+        <button onclick="logout()">Salir</button>
+    </div>
+
+    <div id="usuarioVista" class="vista activa">
+
+        <div class="scanner">
+            <h3>Escaneo</h3>
+
+            <button onclick="activarQR()">
+                Escanear QR
+            </button>
+
+            <div id="reader"></div>
+        </div>
+
+        <div id="reader" style="width:100%; max-width:300px; margin:auto;">
+        </div>
+
+        <div id="zonas">
+            <p>Escaneá un QR para ver las máquinas</p>
+        </div>
+    </div>
+
+    <button onclick='procesarQR("3002")'>
+        Probar QR 3002
+    </button>
+
+
+    <script>
+
+        // datos vienen desde administrador.html vía localStorage
+        let datos = JSON.parse(localStorage.getItem("turno")) || [];
+
+        window.onload = function () {
+
+            const user = localStorage.getItem("usuarioActivo");
+
+            if (!user) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            console.log("Datos cargados:", datos.length);
+        };
+
+
+
+        // LOGOUT
+
+        function logout() {
+            localStorage.removeItem("usuarioActivo");
+            window.location.href = "index.html";
+        }
+
+
+        // QR
+
+        function activarQR() {
+
+            const readerDiv = document.getElementById("reader");
+            readerDiv.innerHTML = "";
+
+            Html5Qrcode.getCameras().then(cameras => {
+
+                if (!cameras.length) {
+                    alert("No hay cámara disponible");
+                    return;
+                }
+
+                const html5QrCode = new Html5Qrcode("reader");
+
+                const camara =
+                    cameras.find(c =>
+                        c.label.toLowerCase().includes("back")
+                    ) || cameras[0];
+
+                html5QrCode.start(
+                    camara.id,
+                    { fps: 10, qrbox: 250 },
+
+                    function (decodedText) {
+
+                        html5QrCode.stop();
+
+                        alert("QR: " + decodedText);
+
+                        procesarQR(decodedText);
+                    }
+
+                );
+
+            }).catch(err => {
+                alert("Error cámara");
+                console.error(err);
+            });
+
+        }
+
+
+
+        // PROCESAR QR
+
+        function procesarQR(locacion) {
+
+            if (!datos.length) {
+                datos = JSON.parse(
+                    localStorage.getItem("datos")
+                ) || [];
+            }
+
+            alert("Datos cargados: " + datos.length);
+
+            const buscada = Number(
+                String(locacion).replace(/\D/g, "")
+            );
+
+            const resultado = datos.filter(
+                d => Number(d.location) === buscada
+            );
+
+            alert("Match: " + resultado.length);
+
+            if (!resultado.length) {
+                alert("Locación no encontrada");
+                return;
+            }
+
+            mostrarLocacion(buscada, resultado);
+        }
+
+
+        // MOSTRAR LOCACION
+
+        function mostrarLocacion(locacion, lista) {
+
+            const contenedor =
+                document.getElementById("zonas");
+
+            const zona = lista[0].zona;
+
+            contenedor.innerHTML = `
+        <h3>Locación ${locacion}</h3>
+        <h4>Zona ${zona}</h4>
+    `;
+
+
+            lista.forEach(m => {
+
+                contenedor.innerHTML += `
+            <div class="maquina">
+                Máquina ${m.maquina}
+            </div>
+        `;
+
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>
