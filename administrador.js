@@ -2,7 +2,7 @@
 
 let datos = [];
 
-fetch("/api/turno")
+fetch("/api/guardar")
     .then(res => res.json())
     .then(data => {
         datos = data;
