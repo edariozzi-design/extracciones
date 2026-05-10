@@ -1,15 +1,21 @@
 
 
 let datos = [];
+let datosCargados = false;
 
-fetch("/api/guardar")
+fetch("/api/turno")
     .then(res => res.json())
     .then(data => {
-        datos = data;
-        console.log("Datos cargados:", datos);
 
-        // IMPORTANTE: recién acá usar datos
-        iniciarApp();
+        datos = data || [];
+        datosCargados = true;
+
+        console.log("Datos cargados:", datos.length);
+
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error cargando datos");
     });
 let filtrados = [];
 
