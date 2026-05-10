@@ -48,7 +48,7 @@
     <script>
 
         // datos vienen desde administrador.html vía localStorage
-        let datos = JSON.parse(localStorage.getItem("turno")) || [];
+        let datos = JSON.parse(fetch("/api/turno")) || [];
 
         window.onload = function () {
 
