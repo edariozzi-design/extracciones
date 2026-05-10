@@ -5,7 +5,7 @@ body {
     color: white;
     padding: 50px;
     margin: 0;
-    background-image: url('../img/fondo-adm.png');
+    background-image: url('../img/fondo-inicial.png');
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center center;
@@ -24,7 +24,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    background: rgba(26,26,26,0.85); /* 👈 CAMBIO */
+    background: rgba(26,26,26,0.85); 
     padding: 20px;
     border-radius: 10px;
 }
@@ -57,6 +57,7 @@ body {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+    max-width: 100px;
 }
 
 .total-maquinas {
@@ -65,15 +66,15 @@ body {
     width: 60%;
     max-width: 250px;
     text-align: center;
-    background: rgba(34,34,34,0.85); /* 👈 CAMBIO */
+    background: rgba(34,34,34,0.85); 
     padding: 10px;
     border-radius: 8px;
 }
 
 .seguimiento-grid > div {
-    background: rgba(34,34,34,0.85); /* 👈 CAMBIO */
+    background: rgba(34,34,34,0.85); 
     padding: 10px;
-    text-align: center;
+    text-align:center;
     border-radius: 8px;
 }
 
@@ -85,13 +86,13 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 10px;
-    background: rgba(17,17,17,0.85); /* 👈 CAMBIO */
+    background: rgba(17,17,17,0.85); 
     padding: 10px;
     border-bottom: 2px solid #333;
 }
 
 #panelResumen .card {
-    background: rgba(34,34,34,0.85); /* 👈 CAMBIO */
+    background: rgba(34,34,34,0.85); 
     color: white;
     padding: 10px;
     text-align: center;
@@ -157,3 +158,5 @@ body {
 .right button:hover {
     opacity: 0.8;
 }
+
+
