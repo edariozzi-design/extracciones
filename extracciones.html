@@ -141,7 +141,7 @@
             );
 
             const resultado = datos.filter(
-                d => Number(d.location) === buscada
+                d => String(d.location).trim() === String(buscada).trim()
             );
 
             alert("Match: " + resultado.length);
