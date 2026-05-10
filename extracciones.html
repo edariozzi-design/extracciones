@@ -47,8 +47,15 @@
 
     <script>
 
-        // datos vienen desde administrador.html vía localStorage
-        let datos = JSON.parse(fetch("/api/turno")) || [];
+
+        let datos = [];
+
+        fetch("/api/turno")
+            .then(res => res.json())
+            .then(data => {
+                datos = data || [];
+                console.log("Datos cargados:", datos.length);
+            });
 
         window.onload = function () {
 
@@ -122,10 +129,10 @@
         function procesarQR(locacion) {
 
             if (!datos.length) {
-                datos = JSON.parse(
-                    localStorage.getItem("datos")
-                ) || [];
+                alert("Todavía cargando datos...");
+                return;
             }
+
 
             alert("Datos cargados: " + datos.length);
 
