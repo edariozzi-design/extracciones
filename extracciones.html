@@ -163,6 +163,8 @@
 
         function mostrarLocacion(locacion, lista) {
 
+            console.log(lista);
+
             const contenedor =
                 document.getElementById("zonas");
 
@@ -178,7 +180,7 @@
 
                 contenedor.innerHTML += `
             <div class="maquina">
-                Máquina ${m.maquina}
+                ${JSON.stringify(m)}
             </div>
         `;
 
