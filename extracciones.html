@@ -32,7 +32,7 @@
             <div id="reader"></div>
         </div>
 
-        <div id="reader" style="width:100%; max-width:300px; margin:auto;">
+
         </div>
 
         <div id="zonas">
@@ -48,14 +48,25 @@
     <script>
 
 
-        let datos = [];
+let datos = [];
+let datosCargados = false;
 
-        fetch("/api/turno")
-            .then(res => res.json())
-            .then(data => {
-                datos = data || [];
-                console.log("Datos cargados:", datos.length);
-            });
+fetch("/api/turno")
+    .then(res => res.json())
+    .then(data => {
+
+        datos = data || [];
+        datosCargados = true;
+
+        console.log("Datos cargados:", datos.length);
+
+    })
+    .catch(err => {
+
+        console.error(err);
+        alert("Error cargando datos");
+
+    });
 
         window.onload = function () {
 
