@@ -182,18 +182,55 @@ function mostrarLocacion(locacion, lista) {
         <h3>Locación ${locacion}</h3>
         <h4>Zona ${zona}</h4>
         <h4>Cantidad de máquinas: ${lista.length}</h4>
+
+        <div class="tabla">
+            <div class="fila encabezado">
+                <div>#</div>
+                <div>Máquina</div>
+                <div>✔️</div>
+                <div>❌</div>
+            </div>
+        </div>
     `;
 
-    lista.forEach(m => {
+    const tabla = contenedor.querySelector(".tabla");
 
-        contenedor.innerHTML += `
-            <div class="maquina">
-                Máquina: ${m.maquina}
+    lista.forEach((m, index) => {
+
+        const fila = document.createElement("div");
+        fila.classList.add("fila");
+
+        fila.innerHTML = `
+            <div>${index + 1}</div>
+            <div>${m.maquina}</div>
+
+            <div>
+                <input type="checkbox" class="ok">
+            </div>
+
+            <div>
+                <input type="checkbox" class="fail">
+            </div>
+
+            <div class="motivos" style="display:none;">
+                <label><input type="checkbox"> No arranca</label><br>
+                <label><input type="checkbox"> Sin energía</label><br>
+                <label><input type="checkbox"> Bloqueada</label><br>
+                <label><input type="checkbox"> Error mecánico</label>
             </div>
         `;
 
-    });
+        tabla.appendChild(fila);
 
+        // lógica ❌ → mostrar motivos
+        const fail = fila.querySelector(".fail");
+        const motivos = fila.querySelector(".motivos");
+
+        fail.addEventListener("change", () => {
+            motivos.style.display = fail.checked ? "block" : "none";
+        });
+
+    });
 }
 
     </script>
