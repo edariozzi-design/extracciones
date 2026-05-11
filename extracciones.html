@@ -33,11 +33,11 @@
         </div>
 
 
-        </div>
+    </div>
 
-        <div id="zonas">
-            <p>Escaneá un QR para ver las máquinas</p>
-        </div>
+    <div id="zonas">
+        <p>Escaneá un QR para ver las máquinas</p>
+    </div>
     </div>
 
     <button onclick='procesarQR("3002")'>
@@ -48,25 +48,25 @@
     <script>
 
 
-let datos = [];
-let datosCargados = false;
+        let datos = [];
+        let datosCargados = false;
 
-fetch("/api/turno")
-    .then(res => res.json())
-    .then(data => {
+        fetch("/api/turno")
+            .then(res => res.json())
+            .then(data => {
 
-        datos = data || [];
-        datosCargados = true;
+                datos = data || [];
+                datosCargados = true;
 
-        console.log("Datos cargados:", datos.length);
+                console.log("Datos cargados:", datos.length);
 
-    })
-    .catch(err => {
+            })
+            .catch(err => {
 
-        console.error(err);
-        alert("Error cargando datos");
+                console.error(err);
+                alert("Error cargando datos");
 
-    });
+            });
 
         window.onload = function () {
 
@@ -119,9 +119,6 @@ fetch("/api/turno")
 
                         html5QrCode.stop();
 
-                        alert("QR: " + decodedText);
-
-                        procesarQR(decodedText);
                     }
 
                 );
@@ -155,14 +152,13 @@ fetch("/api/turno")
                 d => String(d.location).trim() === String(buscada).trim()
             );
 
-            alert("Match: " + resultado.length);
 
             console.log("BUSCADA:", buscada);
             console.log("PRIMEROS DATOS:", datos.slice(0, 5));
-            alert("Resultado: " + resultado.length);
 
             if (!resultado.length) {
-                alert("Locación no encontrada");
+                document.getElementById("zonas").innerHTML =
+                    "<p>Locación no encontrada</p>";
                 return;
             }
 
@@ -172,13 +168,13 @@ fetch("/api/turno")
 
         // MOSTRAR LOCACION
 
-function mostrarLocacion(locacion, lista) {
+        function mostrarLocacion(locacion, lista) {
 
-    const contenedor = document.getElementById("zonas");
+            const contenedor = document.getElementById("zonas");
 
-    const zona = lista[0].zona;
+            const zona = lista[0].zona;
 
-    contenedor.innerHTML = `
+            contenedor.innerHTML = `
         <h3>Locación ${locacion}</h3>
         <h4>Zona ${zona}</h4>
         <h4>Cantidad de máquinas: ${lista.length}</h4>
@@ -193,14 +189,14 @@ function mostrarLocacion(locacion, lista) {
         </div>
     `;
 
-    const tabla = contenedor.querySelector(".tabla");
+            const tabla = contenedor.querySelector(".tabla");
 
-    lista.forEach((m, index) => {
+            lista.forEach((m, index) => {
 
-        const fila = document.createElement("div");
-        fila.classList.add("fila");
+                const fila = document.createElement("div");
+                fila.classList.add("fila");
 
-        fila.innerHTML = `
+                fila.innerHTML = `
             <div>${index + 1}</div>
             <div>${m.maquina}</div>
 
@@ -213,25 +209,25 @@ function mostrarLocacion(locacion, lista) {
             </div>
 
             <div class="motivos" style="display:none;">
-                <label><input type="checkbox"> No arranca</label><br>
-                <label><input type="checkbox"> Sin energía</label><br>
-                <label><input type="checkbox"> Bloqueada</label><br>
-                <label><input type="checkbox"> Error mecánico</label>
+                <label><input type="checkbox">PUERTA PRINCIPAL</label><br>
+                <label><input type="checkbox"> PUERTA BELLY</label><br>
+                <label><input type="checkbox"> CERRADURA 3070</label><br>
+                <label><input type="checkbox"> CERRADURA 020</label>
             </div>
         `;
 
-        tabla.appendChild(fila);
+                tabla.appendChild(fila);
 
-        // lógica ❌ → mostrar motivos
-        const fail = fila.querySelector(".fail");
-        const motivos = fila.querySelector(".motivos");
+                // lógica ❌ → mostrar motivos
+                const fail = fila.querySelector(".fail");
+                const motivos = fila.querySelector(".motivos");
 
-        fail.addEventListener("change", () => {
-            motivos.style.display = fail.checked ? "block" : "none";
-        });
+                fail.addEventListener("change", () => {
+                    motivos.style.display = fail.checked ? "block" : "none";
+                });
 
-    });
-}
+            });
+        }
 
     </script>
 
