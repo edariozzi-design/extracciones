@@ -172,32 +172,29 @@ fetch("/api/turno")
 
         // MOSTRAR LOCACION
 
-        function mostrarLocacion(locacion, lista) {
+function mostrarLocacion(locacion, lista) {
 
-            console.log(lista);
+    const contenedor = document.getElementById("zonas");
 
-            const contenedor =
-                document.getElementById("zonas");
+    const zona = lista[0].zona;
 
-            const zona = lista[0].zona;
-
-            contenedor.innerHTML = `
+    contenedor.innerHTML = `
         <h3>Locación ${locacion}</h3>
         <h4>Zona ${zona}</h4>
+        <h4>Cantidad de máquinas: ${lista.length}</h4>
     `;
 
+    lista.forEach(m => {
 
-            lista.forEach(m => {
-
-                contenedor.innerHTML += `
+        contenedor.innerHTML += `
             <div class="maquina">
-                ${JSON.stringify(m)}
+                Máquina: ${m.maquina}
             </div>
         `;
 
-            });
+    });
 
-        }
+}
 
     </script>
 
