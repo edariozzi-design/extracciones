@@ -136,34 +136,31 @@
 
         function procesarQR(locacion) {
 
-            if (!datosCargados) {
-                alert("Todavía cargando datos...");
-                return;
-            }
+    if (!datosCargados) {
+        document.getElementById("zonas").innerHTML =
+            "<p>Cargando datos...</p>";
+        return;
+    }
 
+    const buscada = Number(
+        String(locacion).replace(/\D/g, "")
+    );
 
-            alert("Datos cargados: " + datos.length);
+    const resultado = datos.filter(
+        d => String(d.location).trim() === String(buscada)
+    );
 
-            const buscada = Number(
-                String(locacion).replace(/\D/g, "")
-            );
+    console.log("BUSCADA:", buscada);
+    console.log("PRIMEROS DATOS:", datos.slice(0, 5));
 
-            const resultado = datos.filter(
-                d => String(d.location).trim() === String(buscada).trim()
-            );
+    if (!resultado.length) {
+        document.getElementById("zonas").innerHTML =
+            "<p>Locación no encontrada</p>";
+        return;
+    }
 
-
-            console.log("BUSCADA:", buscada);
-            console.log("PRIMEROS DATOS:", datos.slice(0, 5));
-
-            if (!resultado.length) {
-                document.getElementById("zonas").innerHTML =
-                    "<p>Locación no encontrada</p>";
-                return;
-            }
-
-            mostrarLocacion(buscada, resultado);
-        }
+    mostrarLocacion(buscada, resultado);
+}
 
 
         // MOSTRAR LOCACION
