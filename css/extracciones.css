@@ -3,7 +3,7 @@
 body {
     margin: 0;
     font-family: Arial;
-    background-image: url('../img/fondo-inicial.png');
+    background-color: black;
     background-repeat: no-repeat;
     background-size: cover;
     color: white;
