@@ -8,14 +8,16 @@ fetch("/api/turno")
     .then(data => {
 
         datos = data || [];
-        datosCargados = true;
 
         console.log("Datos cargados:", datos.length);
 
     })
     .catch(err => {
+
         console.error(err);
-        alert("Error cargando datos");
+
+        datos = [];
+
     });
 let filtrados = [];
 
