@@ -96,7 +96,7 @@ function leerExcel(e) {
         actualizarPanel(filtrados);
         calcularResumenImportes(filtrados);
 
-        console.log(" Verificación:", localStorage.getItem("datos"));
+
 
         alert("Excel cargado correctamente");
     };
@@ -173,7 +173,7 @@ function filtrar() {
 
 function guardarTurno() {
 
-    fetch("/api/turno", {
+    fetch("/api/guardar", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
