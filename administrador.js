@@ -79,7 +79,7 @@ function leerExcel(e) {
         localStorage.setItem("datos", JSON.stringify(datos));
         console.log(" Guardado OK");
 
-        // ===== RECUPERAR TURNO (AHORA SÍ BIEN UBICADO) =====
+        // ===== RECUPERAR TURNO =====
 
         const turnoGuardado = JSON.parse(localStorage.getItem("turno")) || [];
 
