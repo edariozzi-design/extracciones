@@ -14,7 +14,7 @@
 
 <body>
 
-    <h1>PRUEBA DEPLOY 999</h1>
+    
     <div class="header">
         <h2>Extracciones</h2>
         <button onclick="logout()">Salir</button>
@@ -37,12 +37,15 @@
 
     <div id="zonas">
         <p>Escaneá un QR para ver las máquinas</p>
+        <button onclick="enviarWhatsApp()">
+        Enviar pendientes
+</button>
     </div>
     </div>
 
-    <button onclick='procesarQR("3002")' style="display:none;">
-        Probar QR 3002
-    </button>
+    <div id="modalMotivos"></div>
+
+
 
 
     <script>
@@ -209,7 +212,9 @@
                 <label><input type="checkbox"> PUERTA BELLY</label><br>
                 <label><input type="checkbox"> CERRADURA 3070</label><br>
                 <label><input type="checkbox"> CERRADURA 020</label>
-            </div>
+                <label><input type="checkbox"> CERRADURA 020 limada</label>
+                <label><input type="checkbox"> CERRADURA 3070 limada</label>
+                </div>
         `;
 
                 tabla.appendChild(fila);
@@ -225,7 +230,83 @@
             });
         }
 
+        function enviarWhatsApp() {
+
+    let mensaje = "";
+
+    const filas = document.querySelectorAll(".fila");
+
+    filas.forEach(fila => {
+
+        const fail = fila.querySelector(".fail");
+
+        if (fail && fail.checked) {
+
+            const maquina =
+                fila.children[1].innerText;
+
+            mensaje += `❌ Máquina ${maquina}\n`;
+
+            const checks =
+                fila.querySelectorAll(".motivos input:checked");
+
+            checks.forEach(c => {
+
+                const texto =
+                    c.parentElement.innerText.trim();
+
+                mensaje += `- ${texto}\n`;
+
+            });
+
+            mensaje += "\n";
+        }
+
+    });
+
+    if (mensaje === "") {
+        return;
+    }
+
+    const url =
+        `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+
+    window.open(url, "_blank");
+}
+
     </script>
+
+    <div id="modalMotivos" class="modal">
+
+    <div class="modal-contenido">
+
+        <h3>Motivo de falla</h3>
+
+        <label>
+            <input type="checkbox">
+            PUERTA PRINCIPAL
+        </label>
+
+        <label>
+            <input type="checkbox">
+            PUERTA BELLY
+        </label>
+
+        <label>
+            <input type="checkbox">
+            CERRADURA 3070
+        </label>
+
+        <label>
+            <input type="checkbox">
+            CERRADURA 020
+        </label>
+
+        <button>Cerrar</button>
+
+    </div>
+
+</div>
 
 </body>
 
