@@ -40,7 +40,7 @@
     </div>
     </div>
 
-    <button onclick='procesarQR("3002")'>
+    <button onclick='procesarQR("3002")' style="display:none;">
         Probar QR 3002
     </button>
 
@@ -136,31 +136,29 @@
 
         function procesarQR(locacion) {
 
-    if (!datosCargados) {
-        document.getElementById("zonas").innerHTML =
-            "<p>Cargando datos...</p>";
-        return;
-    }
+            if (!datosCargados) {
+                document.getElementById("zonas").innerHTML =
+                    "<p>Cargando datos...</p>";
+                return;
+            }
 
-    const buscada = Number(
-        String(locacion).replace(/\D/g, "")
-    );
+            const buscada = String(locacion).replace(/\D/g, "").trim();
 
-    const resultado = datos.filter(
-        d => String(d.location).trim() === String(buscada)
-    );
+            const resultado = datos.filter(
+                d => String(d.location).replace(/\D/g, "").trim() === buscada
+            );
 
-    console.log("BUSCADA:", buscada);
-    console.log("PRIMEROS DATOS:", datos.slice(0, 5));
+            console.log("BUSCADA:", buscada);
+            console.log("PRIMEROS DATOS:", datos.slice(0, 5));
 
-    if (!resultado.length) {
-        document.getElementById("zonas").innerHTML =
-            "<p>Locación no encontrada</p>";
-        return;
-    }
+            if (!resultado.length) {
+                document.getElementById("zonas").innerHTML =
+                    "<p>Locación no encontrada</p>";
+                return;
+            }
 
-    mostrarLocacion(buscada, resultado);
-}
+            mostrarLocacion(buscada, resultado);
+        }
 
 
         // MOSTRAR LOCACION
