@@ -52,6 +52,7 @@
         let maquinaSeleccionada = null;
         let fallasPorMaquina = {};
 
+
         // =====================
         // CARGA DATOS
         // =====================
@@ -180,12 +181,11 @@
                 const fail = fila.querySelector(".fail");
 
                 fail.addEventListener("change", () => {
-
                     if (fail.checked) {
-                        maquinaSeleccionada = fila.children[1].innerText;
-                        document.getElementById("modalMotivos").style.display = "flex";
+                        abrirModal(fila.children[1].innerText);
+                        fail.checked = false;
+                        fail.blur();
                     }
-
                 });
             });
         }
@@ -195,21 +195,21 @@
         // =====================
         function confirmarFalla() {
 
-            const checks = document.querySelectorAll("#modalMotivos input:checked");
+            const checkboxes = document.querySelectorAll("#modalMotivos input[type='checkbox']");
 
             const motivos = [];
 
-            checks.forEach(c => {
-                motivos.push(c.parentElement.innerText.trim());
+            checkboxes.forEach(cb => {
+                if (cb.checked) {
+                    motivos.push(cb.value);
+                }
             });
 
             if (maquinaSeleccionada) {
                 fallasPorMaquina[maquinaSeleccionada] = motivos;
             }
 
-            document.querySelectorAll("#modalMotivos input").forEach(i => i.checked = false);
-
-            document.getElementById("modalMotivos").style.display = "none";
+            cerrarModal();
 
             console.log("Fallas guardadas:", fallasPorMaquina);
         }
@@ -244,34 +244,8 @@
             const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
 
             window.open(url, "_blank");
-
-            let fallasPorMaquina = {};
-            let maquinaSeleccionada = null;
-
-            function confirmarFalla() {
-
-                const checkboxes = document.querySelectorAll("#modalMotivos input[type='checkbox']");
-
-                let fallas = [];
-
-                checkboxes.forEach(cb => {
-                    if (cb.checked) {
-                        fallas.push(cb.parentElement.innerText.trim());
-                    }
-                });
-
-                if (!maquinaSeleccionada) {
-                    alert("No hay máquina seleccionada");
-                    return;
-                }
-
-                fallasPorMaquina[maquinaSeleccionada] = fallas;
-
-                console.log("Fallas guardadas:", fallasPorMaquina);
-
-                cerrarModal();
-            }
         }
+
 
         // =====================
         // COMO CERRAR MODAL
@@ -292,7 +266,7 @@
         function abrirModal(maquina) {
             maquinaSeleccionada = maquina;
 
-            document.getElementById("modalMotivos").style.display = "block";
+            document.getElementById("modalMotivos").style.display = "flex";
 
             const checkboxes = document.querySelectorAll("#modalMotivos input[type='checkbox']");
 
