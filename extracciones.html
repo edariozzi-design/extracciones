@@ -46,104 +46,104 @@
 
     <script>
 
-      let datos = [];
-let datosCargados = false;
+        let datos = [];
+        let datosCargados = false;
 
-let maquinaSeleccionada = null;
-let fallasPorMaquina = {};
+        let maquinaSeleccionada = null;
+        let fallasPorMaquina = {};
 
-// =====================
-// CARGA DATOS
-// =====================
-fetch("/api/turno")
-    .then(res => res.json())
-    .then(data => {
-        datos = data || [];
-        datosCargados = true;
-        console.log("Datos cargados:", datos.length);
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Error cargando datos");
-    });
+        // =====================
+        // CARGA DATOS
+        // =====================
+        fetch("/api/turno")
+            .then(res => res.json())
+            .then(data => {
+                datos = data || [];
+                datosCargados = true;
+                console.log("Datos cargados:", datos.length);
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error cargando datos");
+            });
 
-// =====================
-// LOGOUT
-// =====================
-function logout() {
-    localStorage.removeItem("usuarioActivo");
-    window.location.href = "index.html";
-}
-
-// =====================
-// QR
-// =====================
-function activarQR() {
-
-    const readerDiv = document.getElementById("reader");
-    readerDiv.innerHTML = "";
-
-    Html5Qrcode.getCameras().then(cameras => {
-
-        if (!cameras.length) {
-            alert("No hay cámara disponible");
-            return;
+        // =====================
+        // LOGOUT
+        // =====================
+        function logout() {
+            localStorage.removeItem("usuarioActivo");
+            window.location.href = "index.html";
         }
 
-        const html5QrCode = new Html5Qrcode("reader");
+        // =====================
+        // QR
+        // =====================
+        function activarQR() {
 
-        const camara =
-            cameras.find(c => c.label.toLowerCase().includes("back")) || cameras[0];
+            const readerDiv = document.getElementById("reader");
+            readerDiv.innerHTML = "";
 
-        html5QrCode.start(
-            camara.id,
-            { fps: 10, qrbox: 250 },
-            function (decodedText) {
-                html5QrCode.stop();
-                procesarQR(decodedText);
+            Html5Qrcode.getCameras().then(cameras => {
+
+                if (!cameras.length) {
+                    alert("No hay cámara disponible");
+                    return;
+                }
+
+                const html5QrCode = new Html5Qrcode("reader");
+
+                const camara =
+                    cameras.find(c => c.label.toLowerCase().includes("back")) || cameras[0];
+
+                html5QrCode.start(
+                    camara.id,
+                    { fps: 10, qrbox: 250 },
+                    function (decodedText) {
+                        html5QrCode.stop();
+                        procesarQR(decodedText);
+                    }
+                );
+
+            }).catch(err => {
+                alert("Error cámara");
+                console.error(err);
+            });
+        }
+
+        // =====================
+        // PROCESAR QR
+        // =====================
+        function procesarQR(locacion) {
+
+            if (!datosCargados) {
+                document.getElementById("zonas").innerHTML = "<p>Cargando datos...</p>";
+                return;
             }
-        );
 
-    }).catch(err => {
-        alert("Error cámara");
-        console.error(err);
-    });
-}
+            const buscada = String(locacion).replace(/\D/g, "").trim();
 
-// =====================
-// PROCESAR QR
-// =====================
-function procesarQR(locacion) {
+            const resultado = datos.filter(
+                d => String(d.location).replace(/\D/g, "").trim() === buscada
+            );
 
-    if (!datosCargados) {
-        document.getElementById("zonas").innerHTML = "<p>Cargando datos...</p>";
-        return;
-    }
+            if (!resultado.length) {
+                document.getElementById("zonas").innerHTML = "<p>Locación no encontrada</p>";
+                return;
+            }
 
-    const buscada = String(locacion).replace(/\D/g, "").trim();
+            mostrarLocacion(buscada, resultado);
+        }
 
-    const resultado = datos.filter(
-        d => String(d.location).replace(/\D/g, "").trim() === buscada
-    );
+        // =====================
+        // MOSTRAR LOCACION
+        // =====================
+        function mostrarLocacion(locacion, lista) {
 
-    if (!resultado.length) {
-        document.getElementById("zonas").innerHTML = "<p>Locación no encontrada</p>";
-        return;
-    }
+            const contenedor = document.getElementById("zonas");
 
-    mostrarLocacion(buscada, resultado);
-}
+            const zona = lista[0].zona;
 
-// =====================
-// MOSTRAR LOCACION
-// =====================
-function mostrarLocacion(locacion, lista) {
-
-    const contenedor = document.getElementById("zonas");
-
-    const zona = lista[0].zona;
-
-    contenedor.innerHTML = `
+            contenedor.innerHTML = `
         <h3>Locación ${locacion}</h3>
         <h4>Zona ${zona}</h4>
         <h4>Cantidad de máquinas: ${lista.length}</h4>
@@ -158,93 +158,144 @@ function mostrarLocacion(locacion, lista) {
         </div>
     `;
 
-    const tabla = contenedor.querySelector(".tabla");
+            const tabla = contenedor.querySelector(".tabla");
 
-    lista.forEach((m, index) => {
+            lista.forEach((m, index) => {
 
-        const fila = document.createElement("div");
-        fila.classList.add("fila");
+                const fila = document.createElement("div");
+                fila.classList.add("fila");
 
-        fila.innerHTML = `
+                fila.innerHTML = `
             <div>${index + 1}</div>
             <div>${m.maquina}</div>
             <div><input type="checkbox" class="ok"></div>
             <div><input type="checkbox" class="fail"></div>
         `;
 
-        tabla.appendChild(fila);
+                tabla.appendChild(fila);
+
+                // =====================
+                // ❌ ABRIR MODAL
+                // =====================
+                const fail = fila.querySelector(".fail");
+
+                fail.addEventListener("change", () => {
+
+                    if (fail.checked) {
+                        maquinaSeleccionada = fila.children[1].innerText;
+                        document.getElementById("modalMotivos").style.display = "flex";
+                    }
+
+                });
+            });
+        }
 
         // =====================
-        // ❌ ABRIR MODAL
+        // CONFIRMAR FALLA
         // =====================
-        const fail = fila.querySelector(".fail");
+        function confirmarFalla() {
 
-        fail.addEventListener("change", () => {
+            const checks = document.querySelectorAll("#modalMotivos input:checked");
 
-            if (fail.checked) {
-                maquinaSeleccionada = fila.children[1].innerText;
-                document.getElementById("modalMotivos").style.display = "flex";
-            }
+            const motivos = [];
 
-        });
-    });
-}
-
-// =====================
-// CONFIRMAR FALLA
-// =====================
-function confirmarFalla() {
-
-    const checks = document.querySelectorAll("#modalMotivos input:checked");
-
-    const motivos = [];
-
-    checks.forEach(c => {
-        motivos.push(c.parentElement.innerText.trim());
-    });
-
-    if (maquinaSeleccionada) {
-        fallasPorMaquina[maquinaSeleccionada] = motivos;
-    }
-
-    document.querySelectorAll("#modalMotivos input").forEach(i => i.checked = false);
-
-    document.getElementById("modalMotivos").style.display = "none";
-
-    console.log("Fallas guardadas:", fallasPorMaquina);
-}
-
-// =====================
-// WHATSAPP
-// =====================
-function enviarWhatsApp() {
-
-    let mensaje = "";
-
-    const filas = document.querySelectorAll(".fila");
-
-    filas.forEach(fila => {
-
-        const maquina = fila.children[1].innerText;
-
-        if (fallasPorMaquina[maquina]) {
-
-            mensaje += `❌ Máquina ${maquina}\n`;
-
-            fallasPorMaquina[maquina].forEach(m => {
-                mensaje += `- ${m}\n`;
+            checks.forEach(c => {
+                motivos.push(c.parentElement.innerText.trim());
             });
 
-            mensaje += "\n";
+            if (maquinaSeleccionada) {
+                fallasPorMaquina[maquinaSeleccionada] = motivos;
+            }
+
+            document.querySelectorAll("#modalMotivos input").forEach(i => i.checked = false);
+
+            document.getElementById("modalMotivos").style.display = "none";
+
+            console.log("Fallas guardadas:", fallasPorMaquina);
         }
-    });
 
-    if (mensaje === "") return;
+        // =====================
+        // WHATSAPP
+        // =====================
+        function enviarWhatsApp() {
 
-    const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+            let mensaje = "";
 
-    window.open(url, "_blank");
-}
+            const filas = document.querySelectorAll(".fila");
+
+            filas.forEach(fila => {
+
+                const maquina = fila.children[1].innerText;
+
+                if (fallasPorMaquina[maquina]) {
+
+                    mensaje += `❌ Máquina ${maquina}\n`;
+
+                    fallasPorMaquina[maquina].forEach(m => {
+                        mensaje += `- ${m}\n`;
+                    });
+
+                    mensaje += "\n";
+                }
+            });
+
+            if (mensaje === "") return;
+
+            const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+
+            window.open(url, "_blank");
+
+            let fallasPorMaquina = {};
+            let maquinaSeleccionada = null;
+
+            function confirmarFalla() {
+
+                const checkboxes = document.querySelectorAll("#modalMotivos input[type='checkbox']");
+
+                let fallas = [];
+
+                checkboxes.forEach(cb => {
+                    if (cb.checked) {
+                        fallas.push(cb.parentElement.innerText.trim());
+                    }
+                });
+
+                if (!maquinaSeleccionada) {
+                    alert("No hay máquina seleccionada");
+                    return;
+                }
+
+                fallasPorMaquina[maquinaSeleccionada] = fallas;
+
+                console.log("Fallas guardadas:", fallasPorMaquina);
+
+                cerrarModal();
+            }
+        }
+
+        // =====================
+        // COMO CERRAR MODAL
+        // =====================
+
+        function cerrarModal() {
+            document.getElementById("modalMotivos").style.display = "none";
+
+            const checkboxes = document.querySelectorAll("#modalMotivos input[type='checkbox']");
+            checkboxes.forEach(cb => cb.checked = false);
+        }
+
+        // =====================
+        // COMO ABRIR MODAL
+        // =====================
+
+        function abrirModal(maquina) {
+            maquinaSeleccionada = maquina;
+
+            document.getElementById("modalMotivos").style.display = "block";
+        }
+
+
+
 
     </script>
 
