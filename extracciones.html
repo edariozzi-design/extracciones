@@ -14,7 +14,7 @@
 
 <body>
 
-    
+
     <div class="header">
         <h2>Extracciones</h2>
         <button onclick="logout()">Salir</button>
@@ -38,8 +38,8 @@
     <div id="zonas">
         <p>Escaneá un QR para ver las máquinas</p>
         <button onclick="enviarWhatsApp()">
-        Enviar pendientes
-</button>
+            Enviar pendientes
+        </button>
     </div>
     </div>
 
@@ -207,106 +207,98 @@
                 <input type="checkbox" class="fail">
             </div>
 
-            <div class="motivos" style="display:none;">
-                <label><input type="checkbox">PUERTA PRINCIPAL</label><br>
-                <label><input type="checkbox"> PUERTA BELLY</label><br>
-                <label><input type="checkbox"> CERRADURA 3070</label><br>
-                <label><input type="checkbox"> CERRADURA 020</label>
-                <label><input type="checkbox"> CERRADURA 020 limada</label>
-                <label><input type="checkbox"> CERRADURA 3070 limada</label>
-                </div>
         `;
 
                 tabla.appendChild(fila);
 
                 // lógica ❌ → mostrar motivos
                 const fail = fila.querySelector(".fail");
-                const motivos = fila.querySelector(".motivos");
 
-                fail.addEventListener("change", () => {
-                    motivos.style.display = fail.checked ? "block" : "none";
-                });
+
 
             });
         }
 
         function enviarWhatsApp() {
 
-    let mensaje = "";
+            let mensaje = "";
 
-    const filas = document.querySelectorAll(".fila");
+            const filas = document.querySelectorAll(".fila");
 
-    filas.forEach(fila => {
+            filas.forEach(fila => {
 
-        const fail = fila.querySelector(".fail");
+                const fail = fila.querySelector(".fail");
 
-        if (fail && fail.checked) {
+                if (fail && fail.checked) {
 
-            const maquina =
-                fila.children[1].innerText;
 
-            mensaje += `❌ Máquina ${maquina}\n`;
+                    const maquina =
+                        fila.children[1].innerText;
 
-            const checks =
-                fila.querySelectorAll(".motivos input:checked");
+                    mensaje += `❌ Máquina ${maquina}\n`;
 
-            checks.forEach(c => {
+                    const checks =
+                        fila.querySelectorAll(".motivos input:checked");
 
-                const texto =
-                    c.parentElement.innerText.trim();
+                    checks.forEach(c => {
 
-                mensaje += `- ${texto}\n`;
+                        const texto =
+                            c.parentElement.innerText.trim();
+
+                        mensaje += `- ${texto}\n`;
+
+                    });
+
+                    mensaje += "\n";
+                }
 
             });
 
-            mensaje += "\n";
+            if (mensaje === "") {
+                return;
+            }
+
+            const url =
+                `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+
+            window.open(url, "_blank");
         }
-
-    });
-
-    if (mensaje === "") {
-        return;
-    }
-
-    const url =
-        `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-
-    window.open(url, "_blank");
-}
 
     </script>
 
     <div id="modalMotivos" class="modal">
 
-    <div class="modal-contenido">
+        <div class="modal-contenido">
 
-        <h3>Motivo de falla</h3>
+            <h3>Motivo de falla</h3>
 
-        <label>
-            <input type="checkbox">
-            PUERTA PRINCIPAL
-        </label>
+            <label>
+                <input type="checkbox">
+                PUERTA PRINCIPAL
+            </label>
 
-        <label>
-            <input type="checkbox">
-            PUERTA BELLY
-        </label>
+            <label>
+                <input type="checkbox">
+                PUERTA BELLY
+            </label>
 
-        <label>
-            <input type="checkbox">
-            CERRADURA 3070
-        </label>
+            <label>
+                <input type="checkbox">
+                CERRADURA 3070
+            </label>
 
-        <label>
-            <input type="checkbox">
-            CERRADURA 020
-        </label>
+            <label>
+                <input type="checkbox">
+                CERRADURA 020
+            </label>
 
-        <button>Cerrar</button>
+            <button onclick="confirmarFalla()">
+                Confirmar
+            </button>
+
+        </div>
 
     </div>
-
-</div>
 
 </body>
 
