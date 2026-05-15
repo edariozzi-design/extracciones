@@ -288,10 +288,27 @@
         // COMO ABRIR MODAL
         // =====================
 
+
         function abrirModal(maquina) {
             maquinaSeleccionada = maquina;
 
             document.getElementById("modalMotivos").style.display = "block";
+
+            const checkboxes = document.querySelectorAll("#modalMotivos input[type='checkbox']");
+
+            // limpiar todos
+            checkboxes.forEach(cb => cb.checked = false);
+
+            // cargar datos si existen
+            const fallasGuardadas = fallasPorMaquina[maquina] || [];
+
+            checkboxes.forEach(cb => {
+                const texto = cb.value;
+
+                if (fallasGuardadas.includes(texto)) {
+                    cb.checked = true;
+                }
+            });
         }
 
 
@@ -306,23 +323,32 @@
             <h3>Motivo de falla</h3>
 
             <label>
-                <input type="checkbox">
+                <input type="checkbox" value="PUERTA PRINCIPAL">
                 PUERTA PRINCIPAL
             </label>
 
             <label>
-                <input type="checkbox">
+                <input type="checkbox" value="PUERTA BELLY">
                 PUERTA BELLY
             </label>
 
             <label>
-                <input type="checkbox">
+                <input type="checkbox" value="CERRADURA 3070">
                 CERRADURA 3070
             </label>
 
             <label>
-                <input type="checkbox">
-                CERRADURA 020
+                <input type="checkbox" value="CERRADURA 0020">
+                CERRADURA 0020
+            </label>
+            <label>
+                <input type="checkbox" value="3070 LIMADA">
+                3070 LIMADA
+            </label>
+
+            <label>
+                <input type="checkbox" value="0020 LIMADA">
+                0020 LIMADA
             </label>
 
             <button onclick="confirmarFalla()">
